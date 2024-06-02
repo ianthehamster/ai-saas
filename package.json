@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "backend": "nodemon index.js",
+    "start:all": "concurrently \"npm run dev\" \"npm run backend\""
   },
   "dependencies": {
     "@clerk/nextjs": "^5.0.3",
@@ -19,15 +21,20 @@
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "ldrs": "^1.0.1",
     "lucide-react": "^0.372.0",
     "next": "14.2.2",
     "openai": "^4.40.2",
+    "pg": "^8.11.5",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.51.3",
     "react-markdown": "^9.0.1",
     "replicate": "^0.30.0",
+    "sequelize": "^6.37.3",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.6"
@@ -36,9 +43,12 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "concurrently": "^8.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.2",
+    "nodemon": "^3.1.2",
     "postcss": "^8",
+    "sequelize-cli": "^6.6.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
