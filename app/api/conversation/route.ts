@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import axios from 'axios';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,7 +13,22 @@ export async function POST(req: Request) {
 
     const user = await currentUser(); // USE THIS FOR CREATING NEW USER IN DB
 
-    console.log(user);
+    try {
+      const response = await axios.post(`http://localhost:3001/users`, {
+        first_name: 'test',
+        last_name: 'testLastName',
+        email: 'testemail@gmail.com',
+      });
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+
+    console.log(
+      user?.firstName,
+      user?.lastName,
+      user?.emailAddresses[0].emailAddress,
+    );
 
     const body = await req.json();
     const { messages } = body;
