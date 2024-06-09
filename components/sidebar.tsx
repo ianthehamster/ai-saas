@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Music,
   Settings,
+  User,
   VideoIcon,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -54,6 +55,12 @@ const routes = [
     icon: Code,
     href: '/code',
     color: 'text-green-700',
+  },
+  {
+    label: 'Saved Chats',
+    icon: User,
+    href: '/user',
+    color: 'text-yellow-500',
   },
   {
     label: 'Settings',

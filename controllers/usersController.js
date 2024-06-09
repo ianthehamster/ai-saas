@@ -21,6 +21,23 @@ class UsersController extends BaseController {
     }
   }
 
+  async getUserBasedOnEmail(req, res) {
+    const { email } = req.body;
+
+    try {
+      const targetUser = await this.model.findOne({
+        where: { email: email },
+      });
+
+      console.log(targetUser);
+
+      return res.json(targetUser);
+    } catch (err) {
+      console.log(err.message);
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  }
+
   async deleteOne(req, res) {
     const { userId } = req.params;
 

@@ -19,12 +19,12 @@ import { Loader } from '@/components/loader';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/user-avatar';
 import { BotAvatar } from '@/components/bot-avatar';
-import { useUser } from '@clerk/nextjs';
 
-const ConversationPage = () => {
+const UserPage = () => {
   const router = useRouter();
-  const useUserObject = useUser();
-
+  // const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([
+  //   { role: 'user', content: 'test' },
+  // ]);
   const [messages, setMessages] = useState([{ role: 'user', content: '' }]);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -69,32 +69,17 @@ const ConversationPage = () => {
     }
   };
 
-  const saveChat = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    console.log(messages);
-
-    try {
-      const response = await axios.post(`http://localhost:3001/chats`, {
-        // WORK ON POSTIING CHATS!
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   console.log(messages.length);
-  // console.log(messages);
 
   return (
     <div>
       <Heading
-        title="Conversation"
+        title="Your Saved Chats"
         description="Our most advanced conversation model."
         icon={MessageSquare}
         iconColor="text-violet-500"
         bgColor="bg-violet-500/10"
       />
-
       <div className="px-4 lg:px-8">
         <div>
           <Form {...form}>
@@ -132,9 +117,6 @@ const ConversationPage = () => {
                 disabled={isLoading}
               >
                 Generate
-              </Button>
-              <Button type="button" onClick={saveChat}>
-                Save Chat
               </Button>
             </form>
           </Form>
@@ -174,4 +156,4 @@ const ConversationPage = () => {
   );
 };
 
-export default ConversationPage;
+export default UserPage;
