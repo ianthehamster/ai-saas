@@ -10,6 +10,10 @@ class ChatsRouter {
     router.post('/', this.controller.postNewChat.bind(this.controller));
     router.get('/:chatId', this.controller.getChat.bind(this.controller));
     router.delete('/:chatId', this.controller.deleteChat.bind(this.controller));
+    router.get(
+      '/saved/:userId',
+      this.controller.getChatsBasedOnUserId.bind(this.controller),
+    );
 
     return router;
   }

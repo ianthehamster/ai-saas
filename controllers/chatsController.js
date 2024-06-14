@@ -45,22 +45,18 @@ class ChatsController extends BaseController {
     }
   }
 
-  // async getUserBasedOnEmail(req, res) {
-  //   const { email } = req.body;
+  async getChatsBasedOnUserId(req, res) {
+    const { userId } = req.params;
 
-  //   try {
-  //     const targetUser = await this.model.findOne({
-  //       where: { email: email },
-  //     });
-
-  //     console.log(targetUser);
-
-  //     return res.json(targetUser);
-  //   } catch (err) {
-  //     console.log(err.message);
-  //     return res.status(400).json({ error: true, msg: err.message });
-  //   }
-  // }
+    try {
+      const savedChats = await this.model.findAll({
+        where: { user_id: userId },
+      });
+      return res.send(savedChats);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   // async deleteOne(req, res) {
   //   const { userId } = req.params;

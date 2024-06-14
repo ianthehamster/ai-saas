@@ -13,9 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+
 import { Empty } from '@/components/empty';
 import { Loader } from '@/components/loader';
+import { LoaderSaving } from '@/components/loader-saving';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/user-avatar';
 import { BotAvatar } from '@/components/bot-avatar';
@@ -24,8 +25,10 @@ import { useUser } from '@clerk/nextjs';
 const ConversationPage = () => {
   const router = useRouter();
   const useUserObject = useUser();
+  console.log(useUserObject.user?.primaryEmailAddress?.emailAddress);
 
   const [messages, setMessages] = useState([{ role: 'user', content: '' }]);
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,11 +41,6 @@ const ConversationPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // const userMessage: ChatCompletionMessageParam = {
-      //   role: 'user',
-      //   content: values.prompt,
-      // };
-
       const userMessage = {
         role: 'user',
         content: values.prompt,
@@ -62,7 +60,6 @@ const ConversationPage = () => {
 
       form.reset();
     } catch (err) {
-      // To DoL Open Pro Modal
       console.log(err);
     } finally {
       router.refresh();
@@ -72,18 +69,36 @@ const ConversationPage = () => {
   const saveChat = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     console.log(messages);
+    setSaveLoading(true);
 
     try {
-      const response = await axios.post(`http://localhost:3001/chats`, {
-        // WORK ON POSTIING CHATS!
-      });
+      console.log('test');
+
+      const email = useUserObject.user?.primaryEmailAddress?.emailAddress;
+
+      const loggedInUser = await axios.get(
+        `http://localhost:3001/users/email?email=${email}`,
+      );
+      console.log(loggedInUser.data);
+
+      if (loggedInUser.data && messages.length > 1) {
+        try {
+          const savedPost = await axios.post(`http://localhost:3001/chats`, {
+            chat_contents: messages,
+            user_id: loggedInUser.data.id,
+          });
+          console.log(savedPost);
+          setTimeout(() => {
+            setSaveLoading(false);
+          }, 2000);
+        } catch (err) {
+          console.error(err);
+        }
+      }
     } catch (err) {
       console.error(err);
     }
   };
-
-  console.log(messages.length);
-  // console.log(messages);
 
   return (
     <div>
@@ -133,42 +148,62 @@ const ConversationPage = () => {
               >
                 Generate
               </Button>
-              <Button type="button" onClick={saveChat}>
+
+              <Button
+                type="button"
+                className="col-span-6 lg:col-span-2 w-full"
+                onClick={saveChat}
+              >
                 Save Chat
+              </Button>
+              <Button
+                type="button"
+                className="col-span-6 lg:col-span-2 w-full"
+                onClick={() => {
+                  setMessages([{ role: 'user', content: '' }]);
+                }}
+              >
+                Clear Chat
               </Button>
             </form>
           </Form>
         </div>
-        <div className="space-y-4 mt-4">
-          {isLoading && (
-            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-              <Loader />
+        {!saveLoading ? (
+          <div className="space-y-4 mt-4">
+            {isLoading && (
+              <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+                <Loader />
+              </div>
+            )}
+            {messages.length === 1 && !isLoading && (
+              <div>
+                <Empty label="No conversation started" />
+              </div>
+            )}
+            <div className="flex flex-col-reverse gap-y-4">
+              {messages.length > 1
+                ? messages.slice(1).map((message) => (
+                    <div
+                      key={message.content}
+                      className={cn(
+                        'p-8 w-full flex items-start gap-x-8 rounded-lg',
+                        message.role === 'user'
+                          ? 'bg-white border border-black/10'
+                          : 'bg-muted',
+                      )}
+                    >
+                      {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  ))
+                : null}
             </div>
-          )}
-          {messages.length === 1 && !isLoading && (
-            <div>
-              <Empty label="No conversation started" />
-            </div>
-          )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.length > 1
-              ? messages.slice(1).map((message) => (
-                  <div
-                    key={message.content}
-                    className={cn(
-                      'p-8 w-full flex items-start gap-x-8 rounded-lg',
-                      message.role === 'user'
-                        ? 'bg-white border border-black/10'
-                        : 'bg-muted',
-                    )}
-                  >
-                    {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-                    <p className="text-sm">{message.content}</p>
-                  </div>
-                ))
-              : null}
           </div>
-        </div>
+        ) : (
+          <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+            <LoaderSaving />
+          </div>
+        )}
       </div>
     </div>
   );

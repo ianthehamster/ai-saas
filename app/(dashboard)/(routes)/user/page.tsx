@@ -12,20 +12,31 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Empty } from '@/components/empty';
 import { Loader } from '@/components/loader';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/user-avatar';
 import { BotAvatar } from '@/components/bot-avatar';
+import { useUser } from '@clerk/nextjs';
 
 const UserPage = () => {
   const router = useRouter();
-  // const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([
-  //   { role: 'user', content: 'test' },
-  // ]);
-  const [messages, setMessages] = useState([{ role: 'user', content: '' }]);
+  const useUserObject = useUser();
+  type Message = {
+    role: string;
+    content: string;
+    chat_contents?: any;
+    createdAt?: string;
+    id?: number;
+  };
+
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'user', content: '' },
+  ]);
+
+  const [geniusUser, setGeniusUser] = useState(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,94 +73,95 @@ const UserPage = () => {
 
       form.reset();
     } catch (err) {
-      // To DoL Open Pro Modal
       console.log(err);
     } finally {
       router.refresh();
     }
   };
 
-  console.log(messages.length);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const email = useUserObject.user?.primaryEmailAddress?.emailAddress;
+
+        const loggedInUser = await axios.get(
+          `http://localhost:3001/users/email?email=${email}`,
+        );
+
+        console.log(loggedInUser);
+        setGeniusUser(loggedInUser.data);
+
+        if (loggedInUser.data.id) {
+          const allMessages = await axios.get(
+            `http://localhost:3001/chats/saved/${loggedInUser.data.id}`,
+          );
+          console.log(allMessages);
+          setMessages(allMessages.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  console.log(geniusUser);
 
   return (
     <div>
       <Heading
         title="Your Saved Chats"
-        description="Our most advanced conversation model."
+        description="Read or delete your saved chats here."
         icon={MessageSquare}
         iconColor="text-violet-500"
         bgColor="bg-violet-500/10"
       />
       <div className="px-4 lg:px-8">
         <div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-lg
-            border
-            w-full
-            p-4
-            px-3
-            md:px-6
-            focus-within:shadow-sm
-            grid
-            grid-cols-12
-            gap-2
-            "
-            >
-              <FormField
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-10">
-                    <FormControl className="m-0 p-0">
-                      <Input
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
-                        disabled={isLoading}
-                        placeholder="Compose a pop song chord progression for me"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <Button
-                className="col-span-12 lg:col-span-2 w-full"
-                disabled={isLoading}
-              >
-                Generate
-              </Button>
-            </form>
-          </Form>
+          <h3 className="text-center font-bold rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm">
+            {useUserObject.user?.firstName}&apos;s Chats
+          </h3>
         </div>
-        <div className="space-y-4 mt-4">
-          {isLoading && (
-            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-              <Loader />
-            </div>
-          )}
-          {messages.length === 1 && !isLoading && (
-            <div>
-              <Empty label="No conversation started" />
-            </div>
-          )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.length > 1
-              ? messages.slice(1).map((message) => (
-                  <div
-                    key={message.content}
-                    className={cn(
-                      'p-8 w-full flex items-start gap-x-8 rounded-lg',
-                      message.role === 'user'
-                        ? 'bg-white border border-black/10'
-                        : 'bg-muted',
-                    )}
-                  >
-                    {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-                    <p className="text-sm">{message.content}</p>
+
+        <div>
+          {messages.length > 1 ? (
+            messages.slice(1).map((message) => {
+              const slicedCreatedAt = message.createdAt.split('T')[0];
+              return (
+                <div
+                  key={message.createdAt}
+                  className="p-8 border border-black/10"
+                >
+                  <div className="flex justify-between w-full">
+                    <span className="font-bold">
+                      Chat created at {slicedCreatedAt}
+                    </span>
+                    <Button
+                      onClick={async () => {
+                        console.log(message);
+                        await axios.delete(
+                          `http://localhost:3001/chats/${message.id}`,
+                        );
+                        const updatedMessages = messages.filter(
+                          (msg) => msg.id !== message.id,
+                        );
+                        setMessages(updatedMessages);
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </div>
-                ))
-              : null}
-          </div>
+                  {message.chat_contents.map((chat_content) => (
+                    <div key={chat_content.content} className="mt-2">
+                      {chat_content.content}
+                    </div>
+                  ))}
+                </div>
+              );
+            })
+          ) : (
+            <div>No chats saved!</div>
+          )}
         </div>
       </div>
     </div>

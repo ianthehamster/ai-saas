@@ -46,6 +46,8 @@ const MusicPage = () => {
     }
   };
 
+  console.log(music); // string https://replicate.delivery/czjl/EhxDdJgEw4puCxlLfAJEL1GbxXMcPqfWaBQdVYnS8Soqoe8lA/gen_sound.wav
+
   return (
     <div>
       <Heading

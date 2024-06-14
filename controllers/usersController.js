@@ -22,7 +22,7 @@ class UsersController extends BaseController {
   }
 
   async getUserBasedOnEmail(req, res) {
-    const { email } = req.body;
+    const { email } = req.query;
 
     try {
       const targetUser = await this.model.findOne({
