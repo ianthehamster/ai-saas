@@ -5,3 +5,5 @@ export const formSchema = z.object({
     message: 'Video Prompt is required',
   }),
 });
+
+export const loadingTime = 'This will take a couple minutes';

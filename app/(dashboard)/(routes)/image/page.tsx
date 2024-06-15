@@ -135,7 +135,7 @@ const ImagePage = () => {
                 control={form.control}
                 name="resolution"
                 render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-2">
+                  <FormItem className="col-span-12 lg:col-span-3">
                     <Select
                       disabled={isLoading}
                       onValueChange={field.onChange}
@@ -159,7 +159,7 @@ const ImagePage = () => {
                 )}
               />
               <Button
-                className="col-span-12 lg:col-span-2 w-full"
+                className="col-span-12 lg:col-span-3 w-full"
                 disabled={isLoading}
               >
                 Generate
@@ -192,7 +192,7 @@ const ImagePage = () => {
                     className="w-full"
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Download
+                    Open image in new tab
                   </Button>
                 </CardFooter>
               </Card>
