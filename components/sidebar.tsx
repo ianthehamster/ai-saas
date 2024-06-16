@@ -62,11 +62,11 @@ const routes = [
     href: '/user',
     color: 'text-yellow-500',
   },
-  {
-    label: 'Settings',
-    icon: Settings,
-    href: '/settings',
-  },
+  // {
+  //   label: 'Settings',
+  //   icon: Settings,
+  //   href: '/settings',
+  // },
 ];
 
 const Sidebar = () => {

@@ -151,11 +151,25 @@ const UserPage = () => {
                       Delete
                     </Button>
                   </div>
-                  {message.chat_contents.map((chat_content) => (
-                    <div key={chat_content.content} className="mt-2">
-                      {chat_content.content}
-                    </div>
-                  ))}
+                  {message.chat_contents
+                    .filter(
+                      (chat_content, index) =>
+                        !(chat_content.role === 'user' && index === 0),
+                    )
+                    .map((chat_content) => {
+                      const role = chat_content.role;
+                      const firstLetterBold = role[0].toUpperCase();
+                      const restOfRole = role.slice(1);
+                      return (
+                        <div key={chat_content.content} className="mt-2">
+                          <strong>
+                            {firstLetterBold}
+                            {restOfRole}
+                          </strong>
+                          : {chat_content.content}
+                        </div>
+                      );
+                    })}
                 </div>
               );
             })

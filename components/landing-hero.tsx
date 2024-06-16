@@ -39,7 +39,7 @@ export const LandingHero = () => {
         </Link>
       </div>
       <div className="text-zinc-400 mt-10 text-xs md:text-sm font-normal">
-        No credit card required
+        By Ian Chow
       </div>
     </div>
   );
