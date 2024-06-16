@@ -31,7 +31,7 @@ export const LandingNavbar = () => {
       <div className="flex items-center gap-x-2">
         <Link href="/sign-up">
           <Button variant="outline" className="rounded-full">
-            Get Started
+            Sign Up
           </Button>
         </Link>
       </div>
