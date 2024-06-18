@@ -61,14 +61,10 @@ const UserPage = () => {
 
       const newMessages = [...messages, userMessage];
 
-      console.log('The newMessage is: ', newMessages);
-
       const response = await axios.post('/api/conversation', {
         messages: newMessages,
       });
 
-      console.log('response is: ', response);
-      console.log('userMessage is: ', userMessage);
       setMessages((current) => [...current, userMessage, response.data]);
 
       form.reset();
@@ -88,14 +84,12 @@ const UserPage = () => {
           `http://localhost:3001/users/email?email=${email}`,
         );
 
-        console.log(loggedInUser);
         setGeniusUser(loggedInUser.data);
 
         if (loggedInUser.data.id) {
           const allMessages = await axios.get(
             `http://localhost:3001/chats/saved/${loggedInUser.data.id}`,
           );
-          console.log(allMessages);
           setMessages(allMessages.data);
         }
       } catch (err) {
@@ -104,8 +98,6 @@ const UserPage = () => {
     };
     fetchData();
   }, []);
-
-  console.log(geniusUser);
 
   return (
     <div>
@@ -138,7 +130,6 @@ const UserPage = () => {
                     </span>
                     <Button
                       onClick={async () => {
-                        console.log(message);
                         await axios.delete(
                           `http://localhost:3001/chats/${message.id}`,
                         );

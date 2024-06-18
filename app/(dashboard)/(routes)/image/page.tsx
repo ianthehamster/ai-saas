@@ -45,7 +45,6 @@ const ImagePage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // console.log(values);
       setImages([]); // reset images array
       const response = await axios.post('/api/image', values);
 
@@ -54,14 +53,11 @@ const ImagePage = () => {
       setImages(urls);
       form.reset();
     } catch (err) {
-      // To DoL Open Pro Modal
       console.log(err);
     } finally {
       router.refresh();
     }
   };
-
-  console.log(images);
 
   return (
     <div>

@@ -25,7 +25,6 @@ import { useUser } from '@clerk/nextjs';
 const ConversationPage = () => {
   const router = useRouter();
   const useUserObject = useUser();
-  console.log(useUserObject.user?.primaryEmailAddress?.emailAddress);
 
   const [messages, setMessages] = useState([{ role: 'user', content: '' }]);
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
@@ -48,14 +47,10 @@ const ConversationPage = () => {
 
       const newMessages = [...messages, userMessage];
 
-      console.log('The newMessage is: ', newMessages);
-
       const response = await axios.post('/api/conversation', {
         messages: newMessages,
       });
 
-      console.log('response is: ', response);
-      console.log('userMessage is: ', userMessage);
       setMessages((current) => [...current, userMessage, response.data]);
 
       form.reset();
@@ -68,18 +63,14 @@ const ConversationPage = () => {
 
   const saveChat = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    console.log(messages);
     setSaveLoading(true);
 
     try {
-      console.log('test');
-
       const email = useUserObject.user?.primaryEmailAddress?.emailAddress;
 
       const loggedInUser = await axios.get(
         `http://localhost:3001/users/email?email=${email}`,
       );
-      console.log(loggedInUser.data);
 
       if (loggedInUser.data && messages.length > 1) {
         try {
@@ -87,7 +78,6 @@ const ConversationPage = () => {
             chat_contents: messages,
             user_id: loggedInUser.data.id,
           });
-          console.log(savedPost);
           setTimeout(() => {
             setSaveLoading(false);
           }, 2000);

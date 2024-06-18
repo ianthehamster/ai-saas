@@ -40,8 +40,6 @@ export async function POST(req: Request) {
       { input },
     );
 
-    console.log(response);
-
     return NextResponse.json(response);
   } catch (err) {
     console.log('[VIDEO_ERROR]', err);

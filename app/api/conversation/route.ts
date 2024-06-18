@@ -11,24 +11,7 @@ export async function POST(req: Request) {
   try {
     const { userId } = auth();
 
-    const user = await currentUser(); // USE THIS FOR CREATING NEW USER IN DB
-
-    // try {
-    //   const response = await axios.post(`http://localhost:3001/users`, {
-    //     first_name: 'test',
-    //     last_name: 'testLastName',
-    //     email: 'testemail@gmail.com',
-    //   });
-    //   console.log(response);
-    // } catch (error) {
-    //   console.error(error);
-    // }
-
-    console.log(
-      user?.firstName,
-      user?.lastName,
-      user?.emailAddresses[0].emailAddress,
-    );
+    const user = await currentUser();
 
     const body = await req.json();
     const { messages } = body;

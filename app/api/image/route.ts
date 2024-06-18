@@ -37,17 +37,12 @@ export async function POST(req: Request) {
 
     const numberAmount = Number(amount);
 
-    console.log(numberAmount);
-
     const response = await openai.images.generate({
       model: 'dall-e-3',
       prompt: prompt,
       n: 1,
       size: resolution,
     });
-
-    console.log(response.data);
-    console.log(response.data[0].url);
 
     return NextResponse.json(response.data);
   } catch (err) {

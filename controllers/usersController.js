@@ -29,8 +29,6 @@ class UsersController extends BaseController {
         where: { email: email },
       });
 
-      console.log(targetUser);
-
       return res.json(targetUser);
     } catch (err) {
       console.log(err.message);
