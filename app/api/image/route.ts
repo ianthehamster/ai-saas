@@ -17,12 +17,6 @@ export async function POST(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // if (!openai.apiKey) {
-    //   return new NextResponse('OpenAI API Key is not configured', {
-    //     status: 500,
-    //   });
-    // }
-
     if (!prompt) {
       return new NextResponse('Prompt is required', { status: 400 });
     }
@@ -37,17 +31,12 @@ export async function POST(req: Request) {
 
     const numberAmount = Number(amount);
 
-    console.log(numberAmount);
-
     const response = await openai.images.generate({
       model: 'dall-e-3',
       prompt: prompt,
       n: 1,
       size: resolution,
     });
-
-    console.log(response.data);
-    console.log(response.data[0].url);
 
     return NextResponse.json(response.data);
   } catch (err) {

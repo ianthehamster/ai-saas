@@ -5,5 +5,3 @@ export const formSchema = z.object({
     message: 'Prompt is required',
   }),
 });
-
-export const loadingPrompt = 'Genius is thinking....';

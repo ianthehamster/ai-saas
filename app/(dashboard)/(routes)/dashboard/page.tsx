@@ -9,9 +9,14 @@ import {
   Image,
   MessageSquare,
   Music,
+  User,
   VideoIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { auth, currentUser, getAuth } from '@clerk/nextjs/server';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
 
 const tools = [
   {
@@ -49,10 +54,63 @@ const tools = [
     bgColor: 'bg-green-500/10',
     href: '/code',
   },
+  {
+    label: 'Saved Chats',
+    icon: User,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10',
+    href: '/user',
+  },
 ];
 
 const DashboardPage = () => {
   const router = useRouter();
+  const useUserObject = useUser();
+  const [doesUserExist, setDoesUserExist] = useState<boolean | null>(null);
+
+  const userEmail = useUserObject.user?.primaryEmailAddress?.emailAddress;
+  const firstName = useUserObject.user?.firstName;
+  const lastName = useUserObject.user?.lastName;
+
+  const checkIfUserExists = async () => {
+    try {
+      const allUsers = await axios.get(`http://localhost:3001/users`);
+
+      for (let i = 0; i < allUsers.data.length; i++) {
+        const currentUser = allUsers.data[i];
+        if (currentUser.email === userEmail) {
+          setDoesUserExist(true);
+        } else {
+          setDoesUserExist(false);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const postUser = async () => {
+    try {
+      const response = await axios.post(`http://localhost:3001/users`, {
+        first_name: useUserObject.user?.firstName,
+        last_name: useUserObject.user?.lastName,
+        email: useUserObject.user?.primaryEmailAddress?.emailAddress,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    checkIfUserExists();
+  }, []);
+
+  useEffect(() => {
+    if (doesUserExist === false && userEmail !== null) {
+      postUser();
+    }
+  }, [doesUserExist]);
+
   return (
     <div>
       <div className="mb-8 space-y-4">

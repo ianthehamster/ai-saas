@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Music,
   Settings,
+  User,
   VideoIcon,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -56,10 +57,16 @@ const routes = [
     color: 'text-green-700',
   },
   {
-    label: 'Settings',
-    icon: Settings,
-    href: '/settings',
+    label: 'Saved Chats',
+    icon: User,
+    href: '/user',
+    color: 'text-yellow-500',
   },
+  // {
+  //   label: 'Settings',
+  //   icon: Settings,
+  //   href: '/settings',
+  // },
 ];
 
 const Sidebar = () => {

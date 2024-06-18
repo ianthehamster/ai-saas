@@ -20,13 +20,15 @@ import { Loader } from '@/components/loader';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/user-avatar';
 import { BotAvatar } from '@/components/bot-avatar';
+import { useUser } from '@clerk/nextjs';
+import { LoaderSaving } from '@/components/loader-saving';
 
 const CodePage = () => {
   const router = useRouter();
-  // const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([
-  //   { role: 'user', content: 'test' },
-  // ]);
+  const useUserObject = useUser();
+
   const [messages, setMessages] = useState([{ role: 'user', content: '' }]);
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,11 +41,6 @@ const CodePage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // const userMessage: ChatCompletionMessageParam = {
-      //   role: 'user',
-      //   content: values.prompt,
-      // };
-
       const userMessage = {
         role: 'user',
         content: values.prompt,
@@ -57,8 +54,6 @@ const CodePage = () => {
         messages: newMessages,
       });
 
-      console.log('response is: ', response);
-      console.log('userMessage is: ', userMessage);
       setMessages((current) => [...current, userMessage, response.data]);
 
       form.reset();
@@ -70,7 +65,36 @@ const CodePage = () => {
     }
   };
 
-  console.log(messages.length);
+  const saveChat = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    setSaveLoading(true);
+
+    try {
+      const email = useUserObject.user?.primaryEmailAddress?.emailAddress;
+
+      const loggedInUser = await axios.get(
+        `http://localhost:3001/users/email?email=${email}`,
+      );
+
+      if (loggedInUser.data && messages.length > 1) {
+        try {
+          const savedPost = await axios.post(`http://localhost:3001/chats`, {
+            chat_contents: messages,
+            user_id: loggedInUser.data.id,
+          });
+
+          setTimeout(() => {
+            setSaveLoading(false);
+          }, 2000);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div>
@@ -119,56 +143,78 @@ const CodePage = () => {
               >
                 Generate
               </Button>
+              <Button
+                type="button"
+                className="col-span-6 lg:col-span-2 w-full"
+                onClick={saveChat}
+              >
+                Save Chat
+              </Button>
+              <Button
+                type="button"
+                className="col-span-6 lg:col-span-2 w-full"
+                onClick={() => {
+                  setMessages([{ role: 'user', content: '' }]);
+                }}
+              >
+                Clear Chat
+              </Button>
             </form>
           </Form>
         </div>
-        <div className="space-y-4 mt-4">
-          {isLoading && (
-            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-              <Loader />
-            </div>
-          )}
-          {messages.length === 1 && !isLoading && (
-            <div>
-              <Empty label="No conversation started" />
-            </div>
-          )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.length > 1
-              ? messages.slice(1).map((message) => (
-                  <div
-                    key={message.content}
-                    className={cn(
-                      'p-8 w-full flex items-start gap-x-8 rounded-lg',
-                      message.role === 'user'
-                        ? 'bg-white border border-black/10'
-                        : 'bg-muted',
-                    )}
-                  >
-                    {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-                    <ReactMarkdown
-                      components={{
-                        pre: ({ node, ...props }) => (
-                          <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
-                            <pre {...props} />
-                          </div>
-                        ),
-                        code: ({ node, ...props }) => (
-                          <code
-                            className="bg-black/10 rounded-lg p-1"
-                            {...props}
-                          />
-                        ),
-                      }}
-                      className="text-sm overflow-hidden leading-7"
+        {!saveLoading ? (
+          <div className="space-y-4 mt-4">
+            {isLoading && (
+              <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+                <Loader />
+              </div>
+            )}
+            {messages.length === 1 && !isLoading && (
+              <div>
+                <Empty label="No conversation started" />
+              </div>
+            )}
+            <div className="flex flex-col-reverse gap-y-4">
+              {messages.length > 1
+                ? messages.slice(1).map((message) => (
+                    <div
+                      key={message.content}
+                      className={cn(
+                        'p-8 w-full flex items-start gap-x-8 rounded-lg',
+                        message.role === 'user'
+                          ? 'bg-white border border-black/10'
+                          : 'bg-muted',
+                      )}
                     >
-                      {message.content || ''}
-                    </ReactMarkdown>{' '}
-                  </div>
-                ))
-              : null}
+                      {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
+                      <ReactMarkdown
+                        components={{
+                          pre: ({ node, ...props }) => (
+                            <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                              <pre {...props} />
+                            </div>
+                          ),
+                          code: ({ node, ...props }) => (
+                            <code
+                              className="bg-black/10 rounded-lg p-1"
+                              {...props}
+                            />
+                          ),
+                        }}
+                        className="text-sm overflow-hidden leading-7"
+                      >
+                        {message.content || ''}
+                      </ReactMarkdown>{' '}
+                    </div>
+                  ))
+                : null}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+            <LoaderSaving />
+          </div>
+        )}
       </div>
     </div>
   );
