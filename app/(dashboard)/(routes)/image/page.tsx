@@ -20,7 +20,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-// import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Empty } from '@/components/empty';
 import { Loader } from '@/components/loader';
 import { cn } from '@/lib/utils';

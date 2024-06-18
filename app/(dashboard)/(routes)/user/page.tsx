@@ -49,11 +49,6 @@ const UserPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // const userMessage: ChatCompletionMessageParam = {
-      //   role: 'user',
-      //   content: values.prompt,
-      // };
-
       const userMessage = {
         role: 'user',
         content: values.prompt,

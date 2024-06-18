@@ -71,15 +71,10 @@ const DashboardPage = () => {
   const userEmail = useUserObject.user?.primaryEmailAddress?.emailAddress;
   const firstName = useUserObject.user?.firstName;
   const lastName = useUserObject.user?.lastName;
-  console.log(useUserObject.user?.primaryEmailAddress?.emailAddress);
-  console.log(useUserObject.user?.firstName);
-  console.log(useUserObject.user?.lastName);
 
   const checkIfUserExists = async () => {
     try {
       const allUsers = await axios.get(`http://localhost:3001/users`);
-
-      console.log(allUsers.data);
 
       for (let i = 0; i < allUsers.data.length; i++) {
         const currentUser = allUsers.data[i];
@@ -101,7 +96,6 @@ const DashboardPage = () => {
         last_name: useUserObject.user?.lastName,
         email: useUserObject.user?.primaryEmailAddress?.emailAddress,
       });
-      console.log(response);
     } catch (error) {
       console.error(error);
     }
@@ -113,7 +107,6 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (doesUserExist === false && userEmail !== null) {
-      console.log('POST THE USER!');
       postUser();
     }
   }, [doesUserExist]);

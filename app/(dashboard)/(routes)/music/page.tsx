@@ -39,7 +39,6 @@ const MusicPage = () => {
       setMusic(response.data.audio);
       form.reset();
     } catch (err) {
-      // To DoL Open Pro Modal
       console.log(err);
     } finally {
       router.refresh();

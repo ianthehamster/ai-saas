@@ -57,22 +57,5 @@ class ChatsController extends BaseController {
       console.error(err);
     }
   }
-
-  // async deleteOne(req, res) {
-  //   const { userId } = req.params;
-
-  //   try {
-  //     await this.model.destroy({
-  //       where: {
-  //         id: userId,
-  //       },
-  //     });
-
-  //     res.status(200).send(`Successfully deleted user at user id: ${userId}`);
-  //   } catch (error) {
-  //     console.error(error);
-  //     res.status(400).send({ error: true, msg: error });
-  //   }
-  // }
 }
 module.exports = ChatsController;
