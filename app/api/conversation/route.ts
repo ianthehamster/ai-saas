@@ -2,6 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import axios from 'axios';
+import customRateLimiter from '../lib/customRateLimiter';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,11 +21,18 @@ export async function POST(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // if (!openai.apiKey) {
-    //   return new NextResponse('OpenAI API Key is not configured', {
-    //     status: 500,
-    //   });
-    // }
+    // console.log(userId, req.headers.get('cookie'));
+
+    const cookieUser = req.headers.get('cookie');
+
+    const rateLimitResponse = customRateLimiter(cookieUser);
+
+    console.log('userId is ', rateLimitResponse);
+    if (rateLimitResponse) {
+      return new NextResponse('Too many requests. Come back in 5 minutes!', {
+        status: 400,
+      });
+    }
 
     if (!messages) {
       return new NextResponse('Messages are required', { status: 400 });
