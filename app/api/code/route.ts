@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const rateLimitResponse = customRateLimiter();
+    const rateLimitResponse = customRateLimiter('code');
 
     console.log('rateLimitResponse is ', rateLimitResponse);
     if (rateLimitResponse) {

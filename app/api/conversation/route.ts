@@ -1,7 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import axios from 'axios';
 import customRateLimiter from '../lib/customRateLimiter';
 
 const openai = new OpenAI({
@@ -25,7 +24,7 @@ export async function POST(req: Request) {
 
     // const cookieUser = req.headers.get('cookie');
 
-    const rateLimitResponse = customRateLimiter();
+    const rateLimitResponse = customRateLimiter('conversation');
 
     console.log('rateLimitResponse is ', rateLimitResponse);
     if (rateLimitResponse) {
