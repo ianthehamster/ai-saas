@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 const rateLimit = new Map<string, { count: number; timestamp: number }>();
 
-export default function customRateLimiter(req: NextRequest) {
+export default function customRateLimiter() {
   const { userId } = auth();
 
   if (!userId)

@@ -23,11 +23,11 @@ export async function POST(req: Request) {
 
     // console.log(userId, req.headers.get('cookie'));
 
-    const cookieUser = req.headers.get('cookie');
+    // const cookieUser = req.headers.get('cookie');
 
-    const rateLimitResponse = customRateLimiter(cookieUser);
+    const rateLimitResponse = customRateLimiter();
 
-    console.log('userId is ', rateLimitResponse);
+    console.log('rateLimitResponse is ', rateLimitResponse);
     if (rateLimitResponse) {
       return new NextResponse('Too many requests. Come back in 5 minutes!', {
         status: 400,

@@ -30,6 +30,10 @@ const CodePage = () => {
   const [messages, setMessages] = useState([{ role: 'user', content: '' }]);
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
+  const [rateLimitReached, setRateLimitReached] = useState<boolean>(false);
+
+  console.log(rateLimitReached);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,6 +53,7 @@ const CodePage = () => {
       const newMessages = [...messages, userMessage];
 
       console.log('The newMessage is: ', newMessages);
+      console.log(rateLimitReached);
 
       const response = await axios.post('/api/code', {
         messages: newMessages,
@@ -58,8 +63,9 @@ const CodePage = () => {
 
       form.reset();
     } catch (err) {
-      // To DoL Open Pro Modal
-      console.log(err);
+      if (err.response.status == 400) setRateLimitReached(true);
+      console.log(rateLimitReached);
+      console.log(err.response);
     } finally {
       router.refresh();
     }
@@ -96,6 +102,14 @@ const CodePage = () => {
     }
   };
 
+  if (rateLimitReached) {
+    setTimeout(() => {
+      setRateLimitReached(false);
+    }, 3000000);
+  }
+
+  console.log(rateLimitReached);
+
   return (
     <div>
       <Heading
@@ -106,11 +120,12 @@ const CodePage = () => {
         bgColor="bg-green-700/10"
       />
       <div className="px-4 lg:px-8">
-        <div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-lg
+        {!rateLimitReached ? (
+          <div>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="rounded-lg
             border
             w-full
             p-4
@@ -121,47 +136,55 @@ const CodePage = () => {
             grid-cols-12
             gap-2
             "
-            >
-              <FormField
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-10">
-                    <FormControl className="m-0 p-0">
-                      <Input
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
-                        disabled={isLoading}
-                        placeholder="Simple toggle button using React hooks"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <Button
-                className="col-span-12 lg:col-span-2 w-full"
-                disabled={isLoading}
               >
-                Generate
-              </Button>
-              <Button
-                type="button"
-                className="col-span-6 lg:col-span-2 w-full"
-                onClick={saveChat}
-              >
-                Save Chat
-              </Button>
-              <Button
-                type="button"
-                className="col-span-6 lg:col-span-2 w-full"
-                onClick={() => {
-                  setMessages([{ role: 'user', content: '' }]);
-                }}
-              >
-                Clear Chat
-              </Button>
-            </form>
-          </Form>
-        </div>
+                <FormField
+                  name="prompt"
+                  render={({ field }) => (
+                    <FormItem className="col-span-12 lg:col-span-10">
+                      <FormControl className="m-0 p-0">
+                        <Input
+                          className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
+                          disabled={isLoading}
+                          placeholder="Simple toggle button using React hooks"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  className="col-span-12 lg:col-span-2 w-full"
+                  disabled={isLoading}
+                >
+                  Generate
+                </Button>
+                <Button
+                  type="button"
+                  className="col-span-6 lg:col-span-2 w-full"
+                  onClick={saveChat}
+                >
+                  Save Chat
+                </Button>
+                <Button
+                  type="button"
+                  className="col-span-6 lg:col-span-2 w-full"
+                  onClick={() => {
+                    setMessages([{ role: 'user', content: '' }]);
+                  }}
+                >
+                  Clear Chat
+                </Button>
+              </form>
+            </Form>
+          </div>
+        ) : (
+          <div>
+            <div className="text-3xl font-bold">Rate Limit reached! </div>
+            <div className="text-sm text-muted-foreground">
+              Please try again in 5 minutes
+            </div>
+          </div>
+        )}
         {!saveLoading ? (
           <div className="space-y-4 mt-4">
             {isLoading && (
