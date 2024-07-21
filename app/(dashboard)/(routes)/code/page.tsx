@@ -105,7 +105,7 @@ const CodePage = () => {
   if (rateLimitReached) {
     setTimeout(() => {
       setRateLimitReached(false);
-    }, 3000000);
+    }, 60000);
   }
 
   console.log(rateLimitReached);

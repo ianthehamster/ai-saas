@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
+import axios from 'axios';
 
 const rateLimit = new Map<string, { count: number; timestamp: number }>();
 
-export default function customRateLimiter(reqType: string) {
+export default async function customRateLimiter(reqType: string) {
   const { userId } = auth();
+  const currentlyLoggedInUser = await currentUser();
+
+  const userEmail = currentlyLoggedInUser?.emailAddresses[0].emailAddress;
+  const user = await axios.get(
+    `http://localhost:3001/users/email?email=${userEmail}`,
+  );
 
   if (!userId)
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
   const currentTime = Date.now();
-  const rateLimitWindow = 5 * 60 * 1000; // 5 minutes window
+  const rateLimitWindow = 1 * 60 * 1000; // 1 minute window
   let maxRequests;
 
   if (reqType === 'conversation' || reqType === 'code') {
@@ -38,6 +45,8 @@ export default function customRateLimiter(reqType: string) {
 
       rateLimit.set(userId, { count: count + 1, timestamp });
     } else {
+      await axios.put(`http://localhost:3001/api/reset/${user.data.id}`);
+
       rateLimit.set(userId, { count: 2, timestamp: currentTime });
     }
   }

@@ -37,6 +37,7 @@ const ConversationPage = () => {
       prompt: '',
     },
   });
+  console.log(useUserObject);
 
   const isLoading = form.formState.isSubmitting;
 
@@ -74,6 +75,7 @@ const ConversationPage = () => {
       const loggedInUser = await axios.get(
         `http://localhost:3001/users/email?email=${email}`,
       );
+      console.log(loggedInUser);
 
       if (loggedInUser.data && messages.length > 1) {
         try {
@@ -96,7 +98,7 @@ const ConversationPage = () => {
   if (rateLimitReached) {
     setTimeout(() => {
       setRateLimitReached(false);
-    }, 3000000);
+    }, 60000);
   }
 
   return (
