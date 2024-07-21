@@ -1,10 +1,9 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import {
-  ChatCompletionMessageParam,
-  CreateChatCompletionRequestMessage,
-} from 'openai/resources/index.mjs';
+import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+
+import customRateLimiter from '../lib/customRateLimiter';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -25,6 +24,15 @@ export async function POST(req: Request) {
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const rateLimitResponse = customRateLimiter('code');
+
+    console.log('rateLimitResponse is ', rateLimitResponse);
+    if (rateLimitResponse) {
+      return new NextResponse('Too many requests. Come back in 5 minutes!', {
+        status: 400,
+      });
     }
 
     if (!messages) {
